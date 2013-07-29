@@ -1,64 +1,48 @@
 (function() {
+  var signupTemplate = _.template($('#signup-template').html());
+  var $signups = $('.signups');
 
   var signups = new IDBStore({
-    dbVersion: 1,
     storeName: 'signups',
     keyPath: 'id',
-    autoIncrement: true,
-    indexes: {
+    indexes: [{
       name: 'email',
       keyPath: 'email',
       unique: true,
       multiEntry: false
-    },
+    }],
     onStoreReady: function(){
-      console.log('Store ready!');
-
-      customers.iterate(function() {
-        console.log('Item', arguments);
-      }, {
-        index: 'email',
-        keyRange: IDBKeyRange,
-        order: 'ASC',
-        filterDuplicates: false,
-        writeAccess: false,
-        onEnd: function() {
-          console.log('End', arguments);
-        },
-        onError: function(err) {
-          console.error(err);
-        }
+      signups.getAll(function(data) {
+        console.log(data);
       });
     }
   });
 
-  var $email = $('#email');
-  $('#sigunp').on('click', function(e) {
+  var $signups = $('.signups-page');
+
+  var $email = $('.email');
+  $('.signup').on('click', function(e) {
+    var email = $email.val();
+    if (email === 'password') {
+      $signups.show();
+      return;
+    }
     signups.put({
-      email: $email.val()
-    }, function(id) {
-      console.log("Success!", id);
-    }, function(err) {
-      console.error(err);
+      email: email
     });
     $email.val('');
   });
 
-  signups.getAll(function(data) {
-    console.log(data):
-  }, function(err) {
-    console.error(err);
-  });
+  $('.close').on('click', function(e) {
+    e.preventDefault();
+    $signups.hide();
+  })
 
-  // customers.clear(onsuccess, onerror);
-
-  var $offline = $('#offline')
-    .toggle(!navigator.onLine);
-
+  var $wifi = $('.wifi').toggleClass('connected', navigator.onLine);
   $(window).on('online', function(e) {
-    $offline.hide();
+    $wifi.addClass('connected');
   }).on('offline', function(e) {
-    $offline.show();
+    $wifi.removeClass('connected');
   });
 
 }).call(this);
